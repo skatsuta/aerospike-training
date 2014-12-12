@@ -22,29 +22,16 @@
 
 package com.aerospike.developer.training;
 
-import java.io.File;
-import java.util.Random;
-
-import com.aerospike.client.AerospikeClient;
-import com.aerospike.client.AerospikeException;
-import com.aerospike.client.Bin;
-import com.aerospike.client.Key;
-import com.aerospike.client.Language;
-import com.aerospike.client.Operation;
-import com.aerospike.client.Record;
-import com.aerospike.client.ScanCallback;
-import com.aerospike.client.Value;
-import com.aerospike.client.lua.LuaConfig;
+import com.aerospike.client.*;
 import com.aerospike.client.policy.Priority;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.ScanPolicy;
 import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.Filter;
-import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
-import com.aerospike.client.task.IndexTask;
-import com.aerospike.client.task.RegisterTask;
+
+import java.util.Random;
 
 public class TweetService {
 	private AerospikeClient client;
@@ -149,39 +136,53 @@ public class TweetService {
 			if (username != null && username.length() > 0) {
 	      // TODO: Create String array of bins you would like to retrieve. In this example, we want to display all tweets for a given user.
 	      // Exercise 3
-	      console.printf("\nTODO: Create String array of bins you would like to retrieve. In this example, we want to display all tweets for a given user.");
+	      //console.printf("\nTODO: Create String array of bins you would like to retrieve. In this example, we want to display all tweets for a given user.");
+				String[] bins = {"tweet"};
 
 	      // TODO: Create Statement instance
 	      // Exercise 3
-	      console.printf("\nTODO: Create Statement instance");
+	      //console.printf("\nTODO: Create Statement instance");
+				Statement stmt = new Statement();
+				stmt.setNamespace("test");
+				stmt.setSetName("tweets");
+				stmt.setIndexName("username_index");
+				stmt.setBinNames(bins);
+				stmt.setFilters(Filter.equal("username", username));
+
+				console.printf("\nHere's " + username + "'s tweet(s):\n");
 
 	      // TODO: Set namespace on the instance of Statement
 	      // Exercise 3
-	      console.printf("\nTODO: Set namespace on the instance of Statement");
+	      //console.printf("\nTODO: Set namespace on the instance of Statement");
+				rs = client.query(null, stmt);
+				while (rs.next()) {
+					Record r = rs.getRecord();
+					console.printf(r.getValue("tweet").toString() + "\n");
+				}
 
 	      // TODO: Set name of the set on the instance of Statement
 	      // Exercise 3
-	      console.printf("\nTODO: Set name of the set on the instance of Statement");
+	      //console.printf("\nTODO: Set name of the set on the instance of Statement");
 
 	      // TODO: Set name of the index on the instance of Statement
 	      // Exercise 3
-	      console.printf("\nTODO: Set index name on the instance of Statement");
+	      //console.printf("\nTODO: Set index name on the instance of Statement");
 
 	      // TODO: Set list of bins you want retrieved on the instance of Statement
 	      // Exercise 3
-	      console.printf("\nTODO: Set list of bins you want retrieved on the instance of Statement");
+	      //console.printf("\nTODO: Set list of bins you want retrieved on the instance of Statement");
 
 	      // TODO: Set equality Filter on username on the instance of Statement
 	      // Exercise 3
-	      console.printf("\nTODO: Set equality Filter on the instance of Statement");
+	      //console.printf("\nTODO: Set equality Filter on the instance of Statement");
 
 	      // TODO: Execute query passing in <null> policy and instance of Statement
 	      // Exercise 3
-	      console.printf("\nTODO: Execute query passing in <null> policy and instance of Statement");
+	      //console.printf("\nTODO: Execute query passing in <null> policy and instance of Statement");
 
 	      // TODO: Iterate through returned RecordSet and output tweets to the console 
 	      // Exercise 3
-	      console.printf("\nTODO: Iterate through returned RecordSet and output tweets to the console");
+	      //console.printf("\nTODO: Iterate through returned RecordSet and output tweets to the console");
 
 			} else {
 				console.printf("ERROR: User record not found!\n");
@@ -189,7 +190,10 @@ public class TweetService {
 		} finally {
       // TODO: Close record set 
       // Exercise 3
-      console.printf("\nTODO: Close record set");
+      		//console.printf("\nTODO: Close record set");
+			if (rs != null) {
+				rs.close();
+			}
 		}
 	} //queryTweetsByUsername
 
@@ -209,35 +213,43 @@ public class TweetService {
 
       // TODO: Create String array of bins you would like to retrieve. In this example, we want to output which user has how many tweets. 
       // Exercise 4
-      console.printf("\nTODO: Create String array of bins you would like to retrieve. In this example, we want to output which user has how many tweets.");
+      //console.printf("\nTODO: Create String array of bins you would like to retrieve. In this example, we want to output which user has how many tweets.");
+			String[] bins = { "username", "tweetcount", "gender" };
 
       // TODO: Create Statement instance
       // Exercise 4
-      console.printf("\nTODO: Create Statement instance");
+      //console.printf("\nTODO: Create Statement instance");
+			Statement stmt = new Statement();
 
       // TODO: Set namespace on the instance of Statement
       // Exercise 4
-      console.printf("\nTODO: Set namespace on the instance of Statement");
+      //console.printf("\nTODO: Set namespace on the instance of Statement");
+			stmt.setNamespace("test");
 
       // TODO: Set name of the set on the instance of Statement
       // Exercise 4
-      console.printf("\nTODO: Set name of the set on the instance of Statement");
+      //console.printf("\nTODO: Set name of the set on the instance of Statement");
+			stmt.setSetName("users");
 
       // TODO: Set name of the index on the instance of Statement
       // Exercise 4
-      console.printf("\nTODO: Set index name on the instance of Statement");
+      //console.printf("\nTODO: Set index name on the instance of Statement");
+			stmt.setIndexName("tweetcount_index");
 
       // TODO: Set list of bins you want retrieved on the instance of Statement
       // Exercise 4
-      console.printf("\nTODO: Set list of bins you want retrieved on the instance of Statement");
+      //console.printf("\nTODO: Set list of bins you want retrieved on the instance of Statement");
+			stmt.setBinNames(bins);
 
       // TODO: Set min--max range Filter on tweetcount on the instance of Statement
       // Exercise 4
-      console.printf("\nTODO: Set min--max range Filter on the instance of Statement");
+      //console.printf("\nTODO: Set min--max range Filter on the instance of Statement");
+			stmt.setFilters(Filter.range("tweetcount", min, max));
 
       // TODO: Execute query passing in <null> policy and instance of Statement
       // Exercise 4
-      console.printf("\nTODO: Execute query passing in null policy and instance of Statement");
+      //console.printf("\nTODO: Execute query passing in null policy and instance of Statement");
+			rs = client.query(null, stmt);
 
       // TODO: Iterate through returned RecordSet and for each record, output text in format "<username> has <#> tweets"
       // Exercise 4

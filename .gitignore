@@ -13,3 +13,5 @@ hs_err_pid*
 
 .idea/
 *.iml
+
+book/answers/Complete/Go/src/github.com/aerospike/aerospike-client-go/*
