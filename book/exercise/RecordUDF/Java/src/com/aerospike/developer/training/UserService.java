@@ -22,27 +22,18 @@
 
 package com.aerospike.developer.training;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
-
-import com.aerospike.client.AerospikeClient;
-import com.aerospike.client.AerospikeException;
-import com.aerospike.client.Bin;
-import com.aerospike.client.Key;
-import com.aerospike.client.Language;
-import com.aerospike.client.Record;
-import com.aerospike.client.Value;
+import com.aerospike.client.*;
 import com.aerospike.client.lua.LuaConfig;
 import com.aerospike.client.policy.Policy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.WritePolicy;
-import com.aerospike.client.query.Filter;
-import com.aerospike.client.query.ResultSet;
-import com.aerospike.client.query.Statement;
 import com.aerospike.client.task.RegisterTask;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
 
 public class UserService {
 	private AerospikeClient client;
@@ -157,17 +148,23 @@ public class UserService {
 
             // TODO: Register UDF
             // Exercise 2
-            // NOTE: UDF registration has been included here for convenience 
+            // NOTE: UDF registration has been included here for convenience
             // NOTE: The recommended way of registering UDFs in production env is via AQL
-            console.printf("\nTODO: Register UDF");
+            //console.printf("\nTODO: Register UDF");
+			LuaConfig.SourceDirectory = "udf";
+			Path path = Paths.get("udf/updateUserPwd.lua");
+			RegisterTask task = client.register(null, path.toString(), path.toString(), Language.LUA);
+			task.waitTillComplete();
 
             // TODO: Execute UDF
             // Exercise 2
-            console.printf("\nTODO: Execute UDF");
+            //console.printf("\nTODO: Execute UDF");
+			String updatedPassword = (String) client.execute(null, userKey, "updateUserPwd", "updatePassword", Value.get(password));
 
             // TODO: Output updated password to the console
             // Exercise 2
-            console.printf("\nTODO:  Outout updated password to the console");
+            //console.printf("\nTODO:  Outout updated password to the console");
+			console.printf("\nINFO: The password has been set to: " + updatedPassword);
         }
         else
         {
