@@ -23,7 +23,9 @@
 package com.aerospike.developer.training;
 
 import com.aerospike.client.*;
+import com.aerospike.client.policy.Priority;
 import com.aerospike.client.policy.RecordExistsAction;
+import com.aerospike.client.policy.ScanPolicy;
 import com.aerospike.client.policy.WritePolicy;
 
 import java.util.Random;
@@ -121,24 +123,30 @@ public class TweetService {
 	public void scanAllTweetsForAllUsers() {
     // TODO: Create ScanPolicy instance 
 		// Exercise 4
-		console.printf("\nTODO: Create ScanPolicy instance");	
-    // TODO: Set policy parameters (optional)
+		//console.printf("\nTODO: Create ScanPolicy instance");
+		ScanPolicy policy = new ScanPolicy();
+		// TODO: Set policy parameters (optional)
 		// Exercise 4
-		console.printf("\nTODO: Set policy parameters (optional)");	
+		//console.printf("\nTODO: Set policy parameters (optional)");
+		policy.concurrentNodes = true;
+		policy.priority = Priority.LOW;
+		policy.includeBinData = true;
     // TODO: Initiate scan operation that invokes callback for outputting tweets on the console
 		// Exercise 4
-		console.printf("\nTODO: Initiate scan operation that invokes callback for outputting tweets to the console");	
+		//console.printf("\nTODO: Initiate scan operation that invokes callback for outputting tweets to the console");
+		client.scanAll(policy, "test", "tweets",
+				(key, record) -> console.printf(record.getValue("tweet") + "\n"), "tweet");
 	} //scanAllTweetsForAllUsers
 	
 	private void updateUser(AerospikeClient client, Key userKey,
 			WritePolicy policy, long ts, int tweetCount) throws AerospikeException, InterruptedException {
     // TODO: Update tweet count and last tweeted timestamp in the user record
     // Exercise 2
-    console.printf("\nTODO: Update tweet count and last tweeted timestamp in the user record");
+    //console.printf("\nTODO: Update tweet count and last tweeted timestamp in the user record");
 
     // TODO: Update tweet count and last tweeted timestamp in the user record using Operate
     // Exercise 6
-    // updateUserUsingOperate(client, userKey, policy, ts);
+    updateUserUsingOperate(client, userKey, policy, ts);
 	} //updateUser
 
 	private void updateUserUsingOperate(AerospikeClient client, Key userKey,
@@ -146,7 +154,12 @@ public class TweetService {
 		
 		// TODO: Initiate operate passing in policy, user record key, .add operation incrementing tweet count, .put operation updating timestamp and .get operation to read the user record		
     // Exercise 6
-		console.printf("\nTODO: Initiate operate passing in policy, user record key, .add operation incrementing tweet count, .put operation updating timestamp and .get operation to read the user record");
+		//console.printf("\nTODO: Initiate operate passing in policy, user record key, .add operation incrementing tweet count, .put operation updating timestamp and .get operation to read the user record");
+		Record record = client.operate(policy, userKey,
+				Operation.add(new Bin("tweetcount", 1)),
+				Operation.put(new Bin("lasttweeted", ts)),
+				Operation.get()
+		);
 
     // TODO: Output most recent tweet count     
     // Exercise 6

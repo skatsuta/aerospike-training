@@ -23,6 +23,8 @@
 package com.aerospike.developer.training;
 
 import com.aerospike.client.*;
+import com.aerospike.client.policy.BatchPolicy;
+import com.aerospike.client.policy.GenerationPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.WritePolicy;
 
@@ -167,10 +169,6 @@ public class UserService {
 
 	public void updatePasswordUsingCAS() throws AerospikeException
 	{
-		Record userRecord = null;
-		Key userKey = null;
-		Bin passwordBin = null;
-
 		// Get username
 		String username;
 		console.printf("\nEnter username:");
@@ -179,17 +177,25 @@ public class UserService {
 		if (username != null && username.length() > 0)
 		{
 			// Check if username exists
-			userKey = new Key("test", "users", username);
-			userRecord = client.get(null, userKey);
+			Key userKey = new Key("test", "users", username);
+			Record userRecord = client.get(null, userKey);
 			if (userRecord != null)
 			{
 				// Get new password
-				String password;
 				console.printf("Enter new password for " + username + ":");
-				password = console.readLine();
-				
+
 				// TODO: Update User record with new password only if generation is the same
 				// Exercise 5
+				WritePolicy policy = new WritePolicy();
+				// record generation
+				policy.generation = userRecord.generation;
+				policy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
+				// password bin
+				String password = console.readLine();
+				Bin passwordBin = new Bin("password", Value.get(password));
+				client.put(policy, userKey, passwordBin);
+
+				console.printf("\nINFO: The password has been set to: " + password);
 			}
 			else
 			{
@@ -208,9 +214,6 @@ public class UserService {
 	
 	public void batchGetUserTweets() throws AerospikeException {
 
-		Record userRecord = null;
-		Key userKey = null;
-
 		// Get username
 		String username;
 		console.printf("\nEnter username:");
@@ -219,20 +222,32 @@ public class UserService {
 		if (username != null && username.length() > 0) {
 			// TODO: Read user record
 			// Exercise 3
-			console.printf("\nTODO: Read user record");
+			//console.printf("\nTODO: Read user record");
+			Key userKey = new Key("test", "users", username);
+			Record userRecord = client.get(null, userKey);
 
 			if (userRecord != null) {
 				// TODO: Get how many tweets the user has
 				// Exercise 3
-				console.printf("\nTODO: Get how many tweets the user has");
+				//console.printf("\nTODO: Get how many tweets the user has");
+				int tweetCount = (Integer) userRecord.getValue("tweetcount");
 
 	      // TODO: Create an array of tweet keys -- keys[tweetCount]
 				// Exercise 3
-				console.printf("\nTODO: Create an array of Key instances -- keys[tweetCount]");
+				//console.printf("\nTODO: Create an array of Key instances -- keys[tweetCount]");
+				Key[] keys = new Key[tweetCount];
+				for (int i = 0; i < keys.length; i++) {
+					keys[i] = new Key("test", "tweets", username + ":" + (i + 1));
+				}
+				console.printf("\nHere's " + username + "'s tweet(s):\n");
 
 	      // TODO: Initiate batch read operation
 				// Exercise 3
-				console.printf("\nTODO: Initiate batch read operation");
+				//console.printf("\nTODO: Initiate batch read operation");
+				if (keys.length > 0) {
+					Record[] records = client.get(new BatchPolicy(), keys);
+					Arrays.stream(records).forEach(record -> console.printf(record.getValue("tweet") + "\n"));
+				}
 
 				// TODO: Output tweets to the console
 				// Exercise 3
