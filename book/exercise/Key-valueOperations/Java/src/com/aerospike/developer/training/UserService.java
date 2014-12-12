@@ -27,6 +27,7 @@ import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.WritePolicy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class UserService {
@@ -98,27 +99,39 @@ public class UserService {
       // Exercise 2
       //console.printf("\nTODO: Create WritePolicy instance");
 			// Write Record
+
+			// Write a WritePolicy
 			WritePolicy wPolicy = new WritePolicy();
 			wPolicy.recordExistsAction = RecordExistsAction.UPDATE;
 
 
+			// Write a user record using the key and bins
 
       // TODO: Create Key and Bin instances for the user record. Remember to convert comma-separated interests into a list before storing it.
       // Exercise 2
-      console.printf("\nTODO: Create Key and Bin instances for the user record. Remember to convert comma-separated interests into a list before storing it.");
+      //console.printf("\nTODO: Create Key and Bin instances for the user record. Remember to convert comma-separated interests into a list before storing it.");
+			// Create Key
+			Key key = new Key("test", "users", username);
+			Bin[] bins = new Bin[]{
+					new Bin("username", username),
+					new Bin("password", password),
+					new Bin("gender", gender),
+					new Bin("region", region),
+					new Bin("lasttweeted", 0),
+					new Bin("tweetcount", 0),
+					Bin.asList("interests", Arrays.asList(interests.split(",")))
+			};
 
       // TODO: Write user record
       // Exercise 2
-      console.printf("\nTODO: Write user record");
+      //console.printf("\nTODO: Write user record");
+		client.put(wPolicy, key, bins);
 
 			console.printf("\nINFO: User record NOT created!");
 		}
 	} //createUser
 	
 	public void getUser() throws AerospikeException {
-		Record userRecord = null;
-		Key userKey = null;
-
 		// Get username
 		String username;
 		console.printf("\nEnter username:");
@@ -127,10 +140,21 @@ public class UserService {
 		if (username != null && username.length() > 0) {
 			// TODO: Read user record
       // Exercise 2
-      console.printf("\nTODO: Read user record");
+      //console.printf("\nTODO: Read user record");
+			final Key userKey = new Key("test", "users", username);
+			final Record userRecord = client.get(null, userKey);
+
 			if (userRecord != null) {
 				console.printf("\nINFO: User record read successfully! Here are the details:\n");
         // TODO: Output user record to the console. Remember to convert comma-separated interests into a list before outputting it.
+				Arrays.asList(
+						"username",
+						"password",
+						"gender",
+						"region",
+						"tweetcount",
+						"interests"
+				).forEach(key -> console.printf(key + ": " + userRecord.getValue(key) + "\n"));
 	      // Exercise 2
         console.printf("\nTODO: Output user record to the console. Remember to convert comma-separated interests into a list before outputting it");
 			} else {

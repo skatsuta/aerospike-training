@@ -22,27 +22,11 @@
 
 package com.aerospike.developer.training;
 
-import java.io.File;
-import java.util.Random;
-
-import com.aerospike.client.AerospikeClient;
-import com.aerospike.client.AerospikeException;
-import com.aerospike.client.Bin;
-import com.aerospike.client.Key;
-import com.aerospike.client.Language;
-import com.aerospike.client.Operation;
-import com.aerospike.client.Record;
-import com.aerospike.client.ScanCallback;
-import com.aerospike.client.Value;
-import com.aerospike.client.lua.LuaConfig;
-import com.aerospike.client.policy.Priority;
+import com.aerospike.client.*;
 import com.aerospike.client.policy.RecordExistsAction;
-import com.aerospike.client.policy.ScanPolicy;
 import com.aerospike.client.policy.WritePolicy;
-import com.aerospike.client.query.Filter;
-import com.aerospike.client.query.RecordSet;
-import com.aerospike.client.query.Statement;
-import com.aerospike.client.task.RegisterTask;
+
+import java.util.Random;
 
 public class TweetService {
 	private AerospikeClient client;
@@ -104,15 +88,23 @@ public class TweetService {
 
 	      // TODO: Create WritePolicy instance
 	      // Exercise 2
-	      console.printf("\nTODO: Create WritePolicy instance");
+	      //console.printf("\nTODO: Create WritePolicy instance");
 
 	      // TODO: Create Key and Bin instances for the tweet record. HINT: tweet key should be in username:nextTweetCount format
 	      // Exercise 2
-	      console.printf("\nTODO: Create Key and Bin instances for the tweet record");
+	      //console.printf("\nTODO: Create Key and Bin instances for the tweet record");
+				tweetKey = new Key("test", "tweets", username + ":" + nextTweetCount);
+				Bin[] bins = new Bin[] {
+						new Bin("tweet", tweet),
+						new Bin("ts", tweet),
+						new Bin("username", tweet)
+				};
 
 	      // TODO: Write tweet record
 	      // Exercise 2
-	      console.printf("\nTODO: Write tweet record");
+	      //console.printf("\nTODO: Write tweet record");
+				client.put(wPolicy, tweetKey, bins);
+				console.printf("\nINFO: Tweet record created!\n");
 
 	      // TODO: Update tweet count and last tweeted timestamp in the user
 				// record
